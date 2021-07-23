@@ -1,12 +1,13 @@
 package com.hedwig.subscriptionservice.service;
 
 import com.hedwig.subscriptionservice.resource.SubscriptionResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface SubscriptionService {
     
-    SubscriptionResource getSubsForUser(String userId);
+    ResponseEntity<?> getSubsForUser(String userId);
 
-    SubscriptionResource getSubsForProduct(String productId);
+    ResponseEntity<?> getSubsForProduct(String productId);
 }
