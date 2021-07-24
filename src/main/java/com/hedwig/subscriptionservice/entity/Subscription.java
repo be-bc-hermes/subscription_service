@@ -14,28 +14,28 @@ public class Subscription {
 
     @Column(name = "userId")
     @NotNull
-    private String userId;
+    private Long userId;
 
     @Column(name = "productId")
     @NotNull
-    private String productId;
+    private Long productId;
 
     @OneToOne
     private CommunicationInfo communicationInfo;
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public String getProductId() {
+    public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(Long productId) {
         this.productId = productId;
     }
 

@@ -1,23 +1,38 @@
 package com.hedwig.subscriptionservice.service;
 
+import com.hedwig.subscriptionservice.amqp.MessageProducer;
+import com.hedwig.subscriptionservice.amqp.messages.SubscriptionCommunicationInfo;
+import com.hedwig.subscriptionservice.entity.CommunicationInfo;
 import com.hedwig.subscriptionservice.entity.Subscription;
+import com.hedwig.subscriptionservice.repository.CommunicationInfoRepository;
 import com.hedwig.subscriptionservice.repository.SubscriptionRepository;
 import com.hedwig.subscriptionservice.resource.SubscriptionResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class SubscriptionServiceImpl implements SubscriptionService{
 
+    Logger logger = LoggerFactory.getLogger(SubscriptionServiceImpl.class);
     private final SubscriptionRepository subscriptionRepository;
+    private final CommunicationInfoRepository communicationInfoRepository;
+    private final MessageProducer messageProducer;
 
     @Autowired
-    public SubscriptionServiceImpl(final SubscriptionRepository subscriptionRepository){
+    public SubscriptionServiceImpl(final SubscriptionRepository subscriptionRepository,
+                                   final CommunicationInfoRepository communicationInfoRepository,
+                                   final MessageProducer messageProducer){
         this.subscriptionRepository = subscriptionRepository;
+        this.communicationInfoRepository = communicationInfoRepository;
+        this.messageProducer = messageProducer;
     }
 
     @Override
@@ -51,6 +66,32 @@ public class SubscriptionServiceImpl implements SubscriptionService{
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    @Override
+    public void changeCommunicationInfo(Long userId, String email) {
+        CommunicationInfo communicationInfo = communicationInfoRepository.findByUserId(userId);
+        communicationInfo.setEmail(email);
+        communicationInfoRepository.save(communicationInfo);
+    }
+
+
+    @Override
+    public void getSubscriberCommunicationInfoForProduct(String productId) {
+        List<Subscription> subscriptions = subscriptionRepository.findByProductId(productId);
+        for(Subscription subscription : subscriptions){
+            messageProducer.sendToQueue(convertToSubscriptionCommunicationInfo(subscription));
+        }
+    }
+
+    private SubscriptionCommunicationInfo convertToSubscriptionCommunicationInfo(Subscription subscription) {
+        SubscriptionCommunicationInfo subscriptionCommunicationInfo = new SubscriptionCommunicationInfo();
+        subscriptionCommunicationInfo.setEmail(subscription.getCommunicationInfo().getEmail());
+        subscriptionCommunicationInfo.setProductId(subscription.getProductId());
+        subscriptionCommunicationInfo.setUserId(subscription.getUserId());
+        return subscriptionCommunicationInfo;
+    }
+
+
 
     /*
     public SubscriptionResource convertSubscriptionListToResource(List<Subscription> subscriptions){

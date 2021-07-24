@@ -1,14 +1,11 @@
-package com.hedwig.subscriptionservice.resource;
+package com.hedwig.subscriptionservice.amqp.messages;
 
-//TODO
-public class SubscriptionResource {
+import java.io.Serializable;
+
+public class SubscriptionCommunicationInfo implements Serializable {
     private Long userId;
     private Long productId;
-
-    public SubscriptionResource(Long userId, Long productId) {
-        this.userId = userId;
-        this.productId = productId;
-    }
+    private String email;
 
     public Long getUserId() {
         return userId;
@@ -24,5 +21,13 @@ public class SubscriptionResource {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
