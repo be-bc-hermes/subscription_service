@@ -76,7 +76,7 @@ public class SubscriptionController {
 
     //get subs for userId
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAllSubsForUser(@PathVariable(value = "userId") @NotNull final String userId){
+    public ResponseEntity<?> getAllSubsForUser(@PathVariable(value = "userId") @NotNull final Long userId){
 
         ResponseEntity<?> subscriptionResource = subscriptionService.getSubsForUser(userId);
 
@@ -85,7 +85,7 @@ public class SubscriptionController {
 
     //get subs for productId
     @GetMapping("/product/{productId}")
-    public ResponseEntity<?> getAllSubsForProduct(@PathVariable(value = "productId") final String productId){
+    public ResponseEntity<?> getAllSubsForProduct(@PathVariable(value = "productId") final Long productId){
 
         ResponseEntity<?> subscriptionResource = subscriptionService.getSubsForProduct(productId);
 

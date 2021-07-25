@@ -2,8 +2,10 @@ package com.hedwig.subscriptionservice.service;
 
 import com.hedwig.subscriptionservice.amqp.MessageProducer;
 import com.hedwig.subscriptionservice.amqp.messages.SubscriptionCommunicationInfo;
+import com.hedwig.subscriptionservice.common.SubscriptionServiceConstants;
 import com.hedwig.subscriptionservice.entity.CommunicationInfo;
 import com.hedwig.subscriptionservice.entity.Subscription;
+import com.hedwig.subscriptionservice.entity.dto.NotificationDTO;
 import com.hedwig.subscriptionservice.repository.CommunicationInfoRepository;
 import com.hedwig.subscriptionservice.repository.SubscriptionRepository;
 import com.hedwig.subscriptionservice.resource.SubscriptionResource;
@@ -36,7 +38,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
-    public ResponseEntity<?> getSubsForUser(String userId) {
+    public ResponseEntity<?> getSubsForUser(Long userId) {
         try {
             List<Subscription> subscriptions = subscriptionRepository.findByUserId(userId);
             ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<SubscriptionResource>();
@@ -52,7 +54,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
-    public ResponseEntity<?> getSubsForProduct(String productId) {
+    public ResponseEntity<?> getSubsForProduct(Long productId) {
         try {
             List<Subscription> subscriptions = subscriptionRepository.findByProductId(productId);
             ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<SubscriptionResource>();
@@ -76,18 +78,20 @@ public class SubscriptionServiceImpl implements SubscriptionService{
 
 
     @Override
-    public void getSubscriberCommunicationInfoForProduct(String productId) {
-        List<Subscription> subscriptions = subscriptionRepository.findByProductId(productId);
+    public void getSubscriberCommunicationInfoForProduct(NotificationDTO notificationDTO) {
+        List<Subscription> subscriptions = subscriptionRepository.findByProductIdAndUserType(notificationDTO.getProductId(), notificationDTO.getPriceChannel());
         for(Subscription subscription : subscriptions){
-            messageProducer.sendToQueue(convertToSubscriptionCommunicationInfo(subscription));
+            messageProducer.sendToQueue(prepareUserCommunicationInfo(subscription, notificationDTO.getId()));
         }
     }
 
-    private SubscriptionCommunicationInfo convertToSubscriptionCommunicationInfo(Subscription subscription) {
+    private SubscriptionCommunicationInfo prepareUserCommunicationInfo(Subscription subscription, Long id) {
         SubscriptionCommunicationInfo subscriptionCommunicationInfo = new SubscriptionCommunicationInfo();
-        subscriptionCommunicationInfo.setEmail(subscription.getCommunicationInfo().getEmail());
-        subscriptionCommunicationInfo.setProductId(subscription.getProductId());
-        subscriptionCommunicationInfo.setUserId(subscription.getUserId());
+
+        subscriptionCommunicationInfo.setTargetAddress(subscription.getCommunicationInfo().getEmail());
+        subscriptionCommunicationInfo.setTargetType(SubscriptionServiceConstants.EMAIL);
+        subscriptionCommunicationInfo.setNotificationId(id);
+
         return subscriptionCommunicationInfo;
     }
 

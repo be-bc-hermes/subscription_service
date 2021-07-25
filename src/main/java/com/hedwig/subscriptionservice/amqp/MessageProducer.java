@@ -23,7 +23,7 @@ public class MessageProducer {
     private RabbitTemplate rabbitTemplate;
 
     public void sendToQueue(SubscriptionCommunicationInfo subscriptionCommunicationInfo) {
-        logger.trace("User communication info is sent for user with id : {}", subscriptionCommunicationInfo.getUserId());
+        logger.trace("User communication info is sent for user with id : {}", subscriptionCommunicationInfo.getNotificationId());
         rabbitTemplate.convertAndSend(exchangeName, routingName, subscriptionCommunicationInfo);
     }
 }

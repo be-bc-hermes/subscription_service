@@ -20,6 +20,10 @@ public class Subscription {
     @NotNull
     private Long productId;
 
+    @Column(name = "userType")
+    @NotNull
+    private String userType;
+
     @OneToOne
     private CommunicationInfo communicationInfo;
 
