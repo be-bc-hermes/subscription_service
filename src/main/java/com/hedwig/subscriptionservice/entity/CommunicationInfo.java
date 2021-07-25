@@ -1,8 +1,7 @@
 package com.hedwig.subscriptionservice.entity;
 
-import com.sun.istack.NotNull;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class CommunicationInfo {
