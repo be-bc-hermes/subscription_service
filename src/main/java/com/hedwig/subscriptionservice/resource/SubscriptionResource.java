@@ -1,6 +1,5 @@
 package com.hedwig.subscriptionservice.resource;
 
-//TODO
 public class SubscriptionResource {
     private Long userId;
     private Long productId;

@@ -17,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService{
@@ -46,7 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     public ResponseEntity<?> getSubsForUser(Long userId) {
         try {
             List<Subscription> subscriptions = subscriptionRepository.findByUserId(userId);
-            ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<SubscriptionResource>();
+            ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<>();
 
             for (Subscription sub : subscriptions) {
                 subscriptionResourcesList.add(new SubscriptionResource(sub.getUserId(), sub.getProductId()));
@@ -62,7 +64,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     public ResponseEntity<?> getSubsForProduct(Long productId) {
         try {
             List<Subscription> subscriptions = subscriptionRepository.findByProductId(productId);
-            ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<SubscriptionResource>();
+            ArrayList<SubscriptionResource> subscriptionResourcesList = new ArrayList<>();
 
             for (Subscription sub : subscriptions) {
                 subscriptionResourcesList.add(new SubscriptionResource(sub.getUserId(), sub.getProductId()));
@@ -75,31 +77,36 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
+    @Transactional
     public void changeCommunicationInfo(Long userId, String email) {
-        CommunicationInfo communicationInfo = communicationInfoRepository.findByUserId(userId);
-        communicationInfo.setEmail(email);
-        communicationInfoRepository.save(communicationInfo);
+        Optional<CommunicationInfo> communicationInfo = Optional.ofNullable(communicationInfoRepository.findByUserId(userId));
+        if(communicationInfo.isPresent()){
+            CommunicationInfo communicationInfo1 = communicationInfo.get();
+            communicationInfo1.setEmail(email);
+            communicationInfoRepository.save(communicationInfo1);
+        }
     }
 
 
     @Override
     public void getSubscriberCommunicationInfoForProduct(NotificationDTO notificationDTO) {
-        List<Subscription> subscriptions = subscriptionRepository.findByProductIdAndUserType(notificationDTO.getProductId(), notificationDTO.getPriceChannel());
-        for(Subscription subscription : subscriptions){
-            messageProducer.sendToQueue(prepareUserCommunicationInfo(subscription, notificationDTO.getId()));
+        Optional<List<Subscription>> subscriptions = Optional.ofNullable(subscriptionRepository.findByProductIdAndUserType(notificationDTO.getProductId(), notificationDTO.getPriceChannel()));
+        if(subscriptions.isPresent()){
+            List<Subscription> subscriptionList = subscriptions.get();
+            for(Subscription subscription : subscriptionList){
+                messageProducer.sendToQueue(prepareUserCommunicationInfo(subscription, notificationDTO.getId()));
+            }
         }
     }
 
     @Override
-    public void createSubscription(Long userId, Long productId, UserType userType) {
-        /*
+    @Transactional
+    public boolean createSubscription(Long userId, Long productId, UserType userType) {
+
         CommunicationInfoDTO userResult = webClient.get()
                 .uri("localhost:8081")
                 .retrieve()
                 .bodyToMono(CommunicationInfoDTO.class).block();
-        */
-
-        CommunicationInfoDTO userResult = new CommunicationInfoDTO(userId,"ozan@gmail.com");
 
         if (userResult != null) {
             // First, create communication info for the user
@@ -113,8 +120,12 @@ public class SubscriptionServiceImpl implements SubscriptionService{
             sub.setUserId(userId);
             sub.setProductId(productId);
             sub.setCommunicationInfo(communicationInfo);
+            sub.setUserType(userType.getType());
             subscriptionRepository.save(sub);
+
+            return true;
         }
+        return false;
     }
 
     private SubscriptionCommunicationInfo prepareUserCommunicationInfo(Subscription subscription, Long id) {
@@ -126,18 +137,4 @@ public class SubscriptionServiceImpl implements SubscriptionService{
 
         return subscriptionCommunicationInfo;
     }
-
-
-
-
-
-    /*
-    public SubscriptionResource convertSubscriptionListToResource(List<Subscription> subscriptions){
-       SubscriptionResource subscriptionResource = new SubscriptionResource();
-        return subscriptionResource;
-    }
-
-     */
-
-
 }
