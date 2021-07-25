@@ -104,7 +104,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     public boolean createSubscription(Long userId, Long productId, UserType userType) {
 
         CommunicationInfoDTO userResult = webClient.get()
-                .uri("localhost:8081")
+                .uri("localhost:8085/user/get/" + userId)
                 .retrieve()
                 .bodyToMono(CommunicationInfoDTO.class).block();
 

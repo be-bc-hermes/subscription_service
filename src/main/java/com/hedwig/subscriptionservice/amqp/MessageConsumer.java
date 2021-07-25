@@ -24,14 +24,14 @@ public class MessageConsumer {
     @RabbitListener(queues = "hedwig.user.info")
     public void handleUserMessage(Message message){
         logger.trace("User communication info change event is received");
-        if(message.getMessage() instanceof CommunicationInfoDTO){
-            subscriptionService.changeCommunicationInfo(((CommunicationInfoDTO) message.getMessage()).getId(),
-                    ((CommunicationInfoDTO) message.getMessage()).getEmail());
-        }
+//        if(message.getMessage() instanceof CommunicationInfoDTO){
+//            subscriptionService.changeCommunicationInfo(((CommunicationInfoDTO) message.getMessage()).getId(),
+//                    ((CommunicationInfoDTO) message.getMessage()).getEmail());
+//        }
     }
 
 
-    @RabbitListener(queues = "product_price_change_notification__subscriber__q")
+//    @RabbitListener(queues = "product_price_change_notification__subscriber__q")
     public void handleNotificationMessage(NotificationDTO notificationDTO){
         logger.trace("User communication info demand is received");
         subscriptionService.getSubscriberCommunicationInfoForProduct(notificationDTO);
