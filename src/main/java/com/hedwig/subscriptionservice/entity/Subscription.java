@@ -20,6 +20,10 @@ public class Subscription {
     @NotNull
     private Long productId;
 
+    @Column(name = "user_type")
+    @NotNull
+    private String userType;
+
     @OneToOne
     private CommunicationInfo communicationInfo;
 
@@ -45,5 +49,13 @@ public class Subscription {
 
     public void setCommunicationInfo(CommunicationInfo communicationInfo) {
         this.communicationInfo = communicationInfo;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

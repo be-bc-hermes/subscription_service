@@ -3,31 +3,31 @@ package com.hedwig.subscriptionservice.amqp.messages;
 import java.io.Serializable;
 
 public class SubscriptionCommunicationInfo implements Serializable {
-    private Long userId;
-    private Long productId;
-    private String email;
+    private Long notificationId;
+    private String targetAddress;
+    private String targetType;
 
-    public Long getUserId() {
-        return userId;
+    public Long getNotificationId() {
+        return notificationId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setNotificationId(Long notificationId) {
+        this.notificationId = notificationId;
     }
 
-    public Long getProductId() {
-        return productId;
+    public String getTargetAddress() {
+        return targetAddress;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setTargetAddress(String targetAddress) {
+        this.targetAddress = targetAddress;
     }
 
-    public String getEmail() {
-        return email;
+    public String getTargetType() {
+        return targetType;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
 }

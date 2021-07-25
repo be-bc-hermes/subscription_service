@@ -1,6 +1,11 @@
 package com.hedwig.subscriptionservice.controller;
 
 import com.hedwig.subscriptionservice.common.SubscriptionServiceConstants;
+import com.hedwig.subscriptionservice.common.UserType;
+import com.hedwig.subscriptionservice.entity.CommunicationInfo;
+import com.hedwig.subscriptionservice.entity.Subscription;
+import com.hedwig.subscriptionservice.entity.dto.CommunicationInfoDTO;
+import com.hedwig.subscriptionservice.entity.dto.SubscriptionDTO;
 import com.hedwig.subscriptionservice.resource.SubscriptionResource;
 import com.hedwig.subscriptionservice.service.SubscriptionService;
 import com.sun.istack.NotNull;
@@ -24,11 +29,10 @@ import java.util.function.Predicate;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
-    private final WebClient webClient;
+
 
     @Autowired
     public SubscriptionController(SubscriptionService subscriptionService){
-        this.webClient = WebClient.create(); // Can adjust HTTP functions, this is the simplest form of webclient
         this.subscriptionService = subscriptionService;
     }
 
@@ -38,26 +42,9 @@ public class SubscriptionController {
         //confirmation alınır + user serviceden communication info alınır
         //kayıt atılır.
     @PostMapping("/")
-    public ResponseEntity<String> createSubscription(@RequestParam Map<String, String> requestParams) {
-        String userId = requestParams.get("userId");
-        String productId = requestParams.get("productId");
+    public ResponseEntity<String> createSubscription(@RequestBody SubscriptionDTO subDTO) {
 
-        // First communicate with userId to get user information.
-
-        //This statement will block until it gets a response.
-        // It will also throw a WebClientException if the response status is 4xx is 5xx.
-        String userResult = webClient.get()
-                .uri("localhost:8081")
-                .retrieve()
-                .bodyToMono(String.class).block();
-
-        // Now communicate with product to verify product ID
-        String productResult = webClient.get()
-                .uri("product URI")
-                .retrieve()
-                .bodyToMono(String.class).block();
-
-        //TODO connect with the database and update it
+        subscriptionService.createSubscription(subDTO.getUserId(), subDTO.getProductId(), subDTO.getUserType());
 
         return new ResponseEntity<>("Subscription created!", HttpStatus.OK);
 
@@ -76,7 +63,7 @@ public class SubscriptionController {
 
     //get subs for userId
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAllSubsForUser(@PathVariable(value = "userId") @NotNull final String userId){
+    public ResponseEntity<?> getAllSubsForUser(@PathVariable(value = "userId") @NotNull final Long userId){
 
         ResponseEntity<?> subscriptionResource = subscriptionService.getSubsForUser(userId);
 
@@ -85,7 +72,7 @@ public class SubscriptionController {
 
     //get subs for productId
     @GetMapping("/product/{productId}")
-    public ResponseEntity<?> getAllSubsForProduct(@PathVariable(value = "productId") final String productId){
+    public ResponseEntity<?> getAllSubsForProduct(@PathVariable(value = "productId") final Long productId){
 
         ResponseEntity<?> subscriptionResource = subscriptionService.getSubsForProduct(productId);
 

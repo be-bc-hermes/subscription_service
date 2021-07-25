@@ -9,7 +9,8 @@ import java.util.List;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    List<Subscription> findByUserId(final String userId);
-    List<Subscription> findByProductId(final String productId);
+    List<Subscription> findByUserId(final Long userId);
+    List<Subscription> findByProductId(final Long productId);
+    List<Subscription> findByProductIdAndUserType(final Long productId, final String userType);
 
 }

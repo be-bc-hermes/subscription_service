@@ -2,6 +2,7 @@ package com.hedwig.subscriptionservice.amqp;
 
 import com.hedwig.subscriptionservice.entity.dto.CommunicationInfoDTO;
 import com.hedwig.subscriptionservice.amqp.messages.Message;
+import com.hedwig.subscriptionservice.entity.dto.NotificationDTO;
 import com.hedwig.subscriptionservice.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,10 @@ public class MessageConsumer {
     }
 
 
-    //TODO: mesaj tipi bekleniyor
-    @RabbitListener(queues = "notification-service-queue")
-    public void handleNotificationMessage(Message message){
+    @RabbitListener(queues = "product_price_change_notification__subscriber__q")
+    public void handleNotificationMessage(NotificationDTO notificationDTO){
         logger.trace("User communication info demand is received");
-        //subscriptionService.getSubscriberCommunicationInfoForProduct();
+        subscriptionService.getSubscriberCommunicationInfoForProduct(notificationDTO);
+
     }
 }
