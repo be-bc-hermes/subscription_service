@@ -5,8 +5,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-@Data
-@Builder
 public class NotificationDTO implements Serializable {
 
     private Long id;
@@ -35,5 +33,14 @@ public class NotificationDTO implements Serializable {
 
     public void setPriceChannel(String priceChannel) {
         this.priceChannel = priceChannel;
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationDTO{" +
+               "id=" + id +
+               ", productId=" + productId +
+               ", priceChannel='" + priceChannel + '\'' +
+               '}';
     }
 }
